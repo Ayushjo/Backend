@@ -1,0 +1,286 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(cuid())
+  email String @unique
+  name String?
+
+  //Authentication
+  hashedPassword String
+  apiKey String
+  hashedApiKey String
+
+  tier UserTier @default(FREE)
+
+  jobsToday Int @default(0)
+  jobsThisMonth Int @default(0)
+  latestResetDate DateTime @default(now())
+
+  stripeCustomerId String?
+
+  jobs Job[]
+  workflows Workflow[]
+  webhooks Webhook[]
+  templates CustomTemplate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([apiKey])
+}
+
+enum UserTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model Job{
+  id String @id @default(cuid())
+  type JobType
+  templateId String?
+  status JobStatus @default(PENDING)
+  input Json
+  output Json?
+  metadata Json?
+
+  error String?
+  errorStack String?
+  attempts Int @default(0)
+  maxAttempts Int @default(3)
+
+  priority Int @default(5)
+  scheduledFor DateTime?
+  createdAt DateTime @default(now())
+  startedAt DateTime?
+  completedAt DateTime?
+  processingTime Int?
+
+  userId String
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+
+  parentJobId String?
+  parentJob Job? @relation("JobChain",fields: [parentJobId], references: [id])
+  childJobs Job[] @relation("JobChain")
+
+  workflowId String?
+  workflow Workflow? @relation(fields: [workflowId], references: [id])
+
+  logs JobLog[]
+  webhookCalls WebhookCall[]
+  @@index([status,scheduledFor])
+  @@index([userId,status,createdAt])
+  @@index([type,status])
+  @@index([workflowId])
+  @@index([createdAt])
+}
+enum JobType {
+  //Media
+  IMAGE_RESIZE
+  IMAGE_COMPRESS
+  IMAGE_WATERMARK
+  VIDEO_TRANSCODE
+  AUDIO_CONVERT
+  PDF_GENERATE
+
+  //COMMUNICATION
+  EMAIL_SEND
+  SMS_SEND
+  PUSH_NOTIFICATION
+
+  //DATA
+  DATA_EXPORT
+  DATA_IMPORT
+  DATABASE_BACKUP
+
+  //INTEGRATION
+  WEBHOOK_CALL
+  API_SYNC
+
+  //AI/ML
+  AI_IMAGE_GENERATE
+  AI_TEXT_GENERATE
+  AI_CONTENT_MODERATE
+
+  //CUSTOM
+  CUSTOM_MODE
+}
+
+enum JobStatus {
+  PENDING
+  SCHEDULED 
+  PROCESSING
+  COMPLETED
+  FAILED //FAILED MAX TRIES
+  CANCELLED
+  TIMEOUT //EXCEEDED MAX PROCESSING TIME
+}
+
+model JobLog {
+  id String @id @default(cuid())
+  jobId String
+  job Job @relation(fields: [jobId], references: [id],onDelete: Cascade)
+  level LogLevel
+  message String @db.Text
+  metadata Json?
+  timestamp DateTime @default(now())
+  @@index([jobId,timestamp])
+  @@index([level,timestamp])
+
+}
+
+enum LogLevel{
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+model Workflow{
+  id String @id @default(cuid())
+  name String
+  description String?
+
+  //Workflow definition
+
+  steps Json    //Array of step definitions
+
+  status WorkflowStatus @default(PENDING)
+  currentStep Int @default(0)
+
+  userId String
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  jobs Job[]
+  createdAt DateTime @default(now())
+  startedAt DateTime?
+  completedAt DateTime?
+
+  @@index([userId,status])
+}
+enum WorkflowStatus{
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Webhook{
+  id String @id @default(cuid())
+  url String
+  events String[]   //[job.completed,job.failed]
+
+  secret String?
+
+  enabled Boolean @default(true)
+  lastSuccess DateTime?
+  lastFailure DateTime?
+  failureCount Int @default(0)
+
+  userId String
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  calls WebhookCall[]
+
+  createdAt DateTime @default(now())
+
+  @@index([userId,enabled])
+}
+
+model WebhookCall{
+  id String @id @default(cuid())
+  webhookId String
+  webhook Webhook @relation(fields: [webhookId], references: [id],onDelete: Cascade)
+  jobId String
+  job Job @relation(fields: [jobId], references: [id],onDelete: Cascade)
+  event String
+  payload Json
+
+  //Response
+  statusCode Int?
+  response String? @db.Text
+  error String?
+
+  attempts Int @default(1)
+  createdAt DateTime @default(now())
+
+  @@index([webhookId,createdAt])
+  @@index([jobId])
+}
+
+model CustomTemplate{
+  id String @id @default(cuid())
+  name String
+  description String?
+  code String @db.Text   //Javascript Code to execute
+  schema Json  //Schema to validate
+
+  timeout Int @default(300000)
+  memory Int @default(128)  //MB
+
+  userId String
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  totalRuns Int @default(0)
+  successRate Float @default(1.0)
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+//Scheduled Jobs
+
+model ScheduledJob{
+  id String @id @default(cuid())
+  name String
+  cronExpression String //Cron Expression
+  timezone String @default("UTC")
+
+  jobType JobType
+  jobInput Json
+  enabled Boolean @default(true)
+  lastRun DateTime?
+  nextRun DateTime
+  lastJobId String?
+  userId String
+  createdAt DateTime @default(now())
+  @@index([enabled,nextRun])
+  @@index([userId])
+}
+
+model DailyStats{
+  id String @id @default(cuid())
+  date DateTime @db.Date
+  userId String
+  jobsCreated Int @default(0)
+  jobsCompleted Int @default(0)
+  jobsFailed Int @default(0)
+
+  //BY Type
+  statsByType Json //{"IMAGE_RESIZE":{completed:10,failed:2}}
+
+  avgProcessingTime Int? //milliseconds
+  totalProcessingTime Int @default(0)
+
+  createdAt DateTime @default(now())
+  @@unique([date,userId])
+  @@index([userId,date])
+
+}
+
+
+
