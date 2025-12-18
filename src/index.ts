@@ -52,9 +52,12 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3500;
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-})
+
+import userRouter from "./routes/authRoutes.js"
+
+app.use("/api/v0/user", userRouter)
+
+
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });

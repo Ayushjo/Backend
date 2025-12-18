@@ -1,9 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import morgan from "morgan";
 import express from "express";
 import logger from "./logger.js";
-import dotenv from "dotenv";
 const app = express();
-dotenv.config();
 const morganFormat = ":method :url :status :response-time ms";
 app.use(morgan(morganFormat, {
     stream: {
@@ -42,9 +42,8 @@ app.use((req, res, next) => {
     next();
 });
 const PORT = process.env.PORT || 3500;
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+import userRouter from "./routes/authRoutes.js";
+app.use("/api/v0/user", userRouter);
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
 });

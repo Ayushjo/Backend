@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "apiKey" DROP NOT NULL,
+ALTER COLUMN "hashedApiKey" DROP NOT NULL;
