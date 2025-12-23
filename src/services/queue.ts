@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-// src/services/queue.ts
 import Bull from "bull";
 
 let queueInstance: Bull.Queue | null = null;
