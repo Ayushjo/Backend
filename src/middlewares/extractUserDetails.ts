@@ -13,6 +13,7 @@ export const extractUserDetails = async (req: any, res: any, next: any) => {
     const user = await prisma.user.findFirst({
       where: {
         id: decodedToken.id,
+        verified: true,
       },
     });
     req.user = user;

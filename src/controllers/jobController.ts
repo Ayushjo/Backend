@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prisma.js";
+import { queue } from "../services/queue.js";
 
 export const createJob = async (req: any, res: Response) => {
   try {
@@ -28,6 +29,18 @@ export const createJob = async (req: any, res: Response) => {
     if (!job) {
       return res.status(400).json({ message: "Job not created" });
     }
+    await queue.add(job.type, {
+      jobId: job.id,
+      ...(typeof job.input === "object" && job.input !== null ? job.input : {}),
+      parentJobId:parentJobId
+    },
+    {
+      priority:job.priority,
+      delay:scheduledFor?new Date(scheduledFor).getTime() - Date.now() :0,
+      attempts:job.maxAttempts,
+      backoff:{type:"exponential", delay:2000}
+    }
+  );
     res.status(200).json({ job, message: "Job created successfully" });
   } catch (error: any) {
     console.log(error.message);

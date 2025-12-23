@@ -44,6 +44,8 @@ app.use((req, res, next) => {
 const PORT = process.env.PORT || 3500;
 import userRouter from "./routes/authRoutes.js";
 app.use("/api/v0/user", userRouter);
+import jobRouter from "./routes/jobRoutes.js";
+app.use("/api/v0/job", jobRouter);
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
 });
