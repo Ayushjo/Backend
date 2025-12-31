@@ -105,14 +105,19 @@ export const cancelJob = async (req: Request, res: Response) => {
     if (job.status !== "PENDING") {
       return res.status(400).json({ message: "Job is already started" });
     }
-    const queueJob = await queue.removeJobs(job.queueJobId as any);
+    const queueJob = await queue.getJob(job.queueJobId?.toString() as string);
     if (queueJob as any) {
-      await prisma.job.delete({
+      await queueJob?.remove();
+      await prisma.job.update({
         where: {
           id: job.id,
         },
+        data: {
+          status: "CANCELLED",
+        },
       });
     }
+    return res.status(200).json({ message: "Job cancelled successfully" });
   } catch (error: any) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
@@ -149,6 +154,19 @@ export const editJob = async (req: Request, res: Response) => {
       parentJobId,
       workflowId,
     } = req.body;
+    if (parentJobId) {
+      const parent = await prisma.job.findFirst({
+        where: {
+          id: parentJobId,
+        },
+      });
+      if (parent && parent.priority > priority) {
+        return res.status(400).json({
+          message:
+            "Parent job priority should be less than or equal to child job priority",
+        });
+      }
+    }
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
@@ -161,9 +179,10 @@ export const editJob = async (req: Request, res: Response) => {
     if (job && job.status !== "PENDING") {
       return res.status(400).json({ message: "Job is already started" });
     }
-    const queueJob = await queue.removeJobs(
-      job ? (job.queueJobId as any) : null
-    );
+    const queueJob = await queue.getJob(job.queueJobId?.toString() as string);
+    if (queueJob) {
+      await queueJob?.remove();
+    }
 
     const jobn = await prisma.job.update({
       where: {

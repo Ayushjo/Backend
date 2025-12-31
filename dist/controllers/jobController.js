@@ -89,14 +89,19 @@ export const cancelJob = async (req, res) => {
         if (job.status !== "PENDING") {
             return res.status(400).json({ message: "Job is already started" });
         }
-        const queueJob = await queue.removeJobs(job.queueJobId);
+        const queueJob = await queue.getJob(job.queueJobId?.toString());
         if (queueJob) {
-            await prisma.job.delete({
+            await queueJob?.remove();
+            await prisma.job.update({
                 where: {
                     id: job.id,
                 },
+                data: {
+                    status: "CANCELLED",
+                },
             });
         }
+        return res.status(200).json({ message: "Job cancelled successfully" });
     }
     catch (error) {
         console.log(error.message);
@@ -125,6 +130,18 @@ export const editJob = async (req, res) => {
     try {
         const { jobId } = req.params;
         const { type, templateId, input, priority, scheduledFor, parentJobId, workflowId, } = req.body;
+        if (parentJobId) {
+            const parent = await prisma.job.findFirst({
+                where: {
+                    id: parentJobId,
+                },
+            });
+            if (parent && parent.priority > priority) {
+                return res.status(400).json({
+                    message: "Parent job priority should be less than or equal to child job priority",
+                });
+            }
+        }
         const job = await prisma.job.findFirst({
             where: {
                 id: jobId,
@@ -136,7 +153,10 @@ export const editJob = async (req, res) => {
         if (job && job.status !== "PENDING") {
             return res.status(400).json({ message: "Job is already started" });
         }
-        const queueJob = await queue.removeJobs(job ? job.queueJobId : null);
+        const queueJob = await queue.getJob(job.queueJobId?.toString());
+        if (queueJob) {
+            await queueJob?.remove();
+        }
         const jobn = await prisma.job.update({
             where: {
                 id: jobId,
