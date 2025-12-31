@@ -125,7 +125,19 @@ export const editJob = async (req, res) => {
     try {
         const { jobId } = req.params;
         const { type, templateId, input, priority, scheduledFor, parentJobId, workflowId, } = req.body;
-        const job = await prisma.job.update({
+        const job = await prisma.job.findFirst({
+            where: {
+                id: jobId,
+            },
+        });
+        if (!job) {
+            return res.status(400).json({ message: "Job not found" });
+        }
+        if (job && job.status !== "PENDING") {
+            return res.status(400).json({ message: "Job is already started" });
+        }
+        const queueJob = await queue.removeJobs(job ? job.queueJobId : null);
+        const jobn = await prisma.job.update({
             where: {
                 id: jobId,
             },
@@ -139,9 +151,26 @@ export const editJob = async (req, res) => {
                 workflowId,
             },
         });
-        if (!job) {
-            return res.status(400).json({ message: "Job not found" });
-        }
+        const queueJob2 = await queue.add(jobn.type, {
+            jobId: jobn.id,
+            ...(typeof jobn.input === "object" && jobn.input !== null
+                ? jobn.input
+                : {}),
+            parentJobId: parentJobId,
+        }, {
+            priority: jobn.priority,
+            delay: scheduledFor ? new Date(scheduledFor).getTime() - Date.now() : 0,
+            attempts: jobn.maxAttempts,
+            backoff: { type: "exponential", delay: 2000 },
+        });
+        await prisma.job.update({
+            where: {
+                id: jobn.id,
+            },
+            data: {
+                queueJobId: parseInt(queueJob2.id),
+            },
+        });
         res.status(200).json({ job, message: "Job updated successfully" });
     }
     catch (error) {
