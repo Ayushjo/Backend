@@ -14,6 +14,20 @@ export const createJob = async (req: any, res: Response) => {
       parentJobId,
       workflowId,
     } = req.body;
+
+    if (parentJobId) {
+      const parent = await prisma.job.findFirst({
+        where: {
+          id: parentJobId,
+        },
+      });
+      if (parent && parent.priority > priority) {
+        return res.status(400).json({
+          message:
+            "Parent job priority should be less than or equal to child job priority",
+        });
+      }
+    }
     const job = await prisma.job.create({
       data: {
         type,
@@ -29,18 +43,22 @@ export const createJob = async (req: any, res: Response) => {
     if (!job) {
       return res.status(400).json({ message: "Job not created" });
     }
-    await queue.add(job.type, {
-      jobId: job.id,
-      ...(typeof job.input === "object" && job.input !== null ? job.input : {}),
-      parentJobId:parentJobId
-    },
-    {
-      priority:job.priority,
-      delay:scheduledFor?new Date(scheduledFor).getTime() - Date.now() :0,
-      attempts:job.maxAttempts,
-      backoff:{type:"exponential", delay:2000}
-    }
-  );
+    await queue.add(
+      job.type,
+      {
+        jobId: job.id,
+        ...(typeof job.input === "object" && job.input !== null
+          ? job.input
+          : {}),
+        parentJobId: parentJobId,
+      },
+      {
+        priority: job.priority,
+        delay: scheduledFor ? new Date(scheduledFor).getTime() - Date.now() : 0,
+        attempts: job.maxAttempts,
+        backoff: { type: "exponential", delay: 2000 },
+      }
+    );
     res.status(200).json({ job, message: "Job created successfully" });
   } catch (error: any) {
     console.log(error.message);
