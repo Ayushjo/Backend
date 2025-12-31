@@ -122,6 +122,7 @@ export const JobScalarFieldEnum = {
     startedAt: 'startedAt',
     completedAt: 'completedAt',
     processingTime: 'processingTime',
+    queueJobId: 'queueJobId',
     userId: 'userId',
     parentJobId: 'parentJobId',
     workflowId: 'workflowId'

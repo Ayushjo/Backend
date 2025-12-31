@@ -43,7 +43,7 @@ export const createJob = async (req: any, res: Response) => {
     if (!job) {
       return res.status(400).json({ message: "Job not created" });
     }
-    await queue.add(
+    const queueJob = await queue.add(
       job.type,
       {
         jobId: job.id,
@@ -59,6 +59,16 @@ export const createJob = async (req: any, res: Response) => {
         backoff: { type: "exponential", delay: 2000 },
       }
     );
+    if (queueJob && queueJob.id) {
+      await prisma.job.update({
+        where: {
+          id: job.id,
+        },
+        data: {
+          queueJobId: parseInt(queueJob.id as string),
+        },
+      });
+    }
     res.status(200).json({ job, message: "Job created successfully" });
   } catch (error: any) {
     console.log(error.message);
@@ -92,12 +102,17 @@ export const cancelJob = async (req: Request, res: Response) => {
     if (!job) {
       return res.status(400).json({ message: "Job not found" });
     }
-    await prisma.job.delete({
-      where: {
-        id: jobId,
-      },
-    });
-    res.status(200).json({ message: "Job cancelled successfully" });
+    if (job.status !== "PENDING") {
+      return res.status(400).json({ message: "Job is already started" });
+    }
+    const queueJob = await queue.removeJobs(job.queueJobId as any);
+    if (queueJob as any) {
+      await prisma.job.delete({
+        where: {
+          id: job.id,
+        },
+      });
+    }
   } catch (error: any) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
