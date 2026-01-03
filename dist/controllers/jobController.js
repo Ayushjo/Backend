@@ -200,3 +200,27 @@ export const editJob = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+export const createScheduledJobs = async (req, res) => {
+    try {
+        const user = req.user;
+        const { name, cronExpression, timzone, jobType, input, nextRun } = req.body;
+        const job = await prisma.scheduledJob.create({
+            data: {
+                name,
+                cronExpression,
+                timezone: timzone,
+                jobType,
+                jobInput: input,
+                nextRun,
+                userId: user.id,
+            },
+        });
+        if (!job) {
+            return res.status(400).json({ message: "Job not created" });
+        }
+        return res.status(200).json({ message: "Job created successfully", job });
+    }
+    catch (error) {
+        console.log(error.message);
+    }
+};

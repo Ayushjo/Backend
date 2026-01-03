@@ -51,7 +51,7 @@ export const createJob = async (req: any, res: Response) => {
           ? job.input
           : {}),
         parentJobId: parentJobId,
-        userId:user.id,
+        userId: user.id,
         input: job.input,
       },
       {
@@ -228,5 +228,29 @@ export const editJob = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const createScheduledJobs = async (req: any, res: Response) => {
+  try {
+    const user = req.user;
+    const { name, cronExpression, timzone, jobType, input, nextRun } = req.body;
+    const job = await prisma.scheduledJob.create({
+      data: {
+        name,
+        cronExpression,
+        timezone: timzone,
+        jobType,
+        jobInput: input,
+        nextRun,
+        userId: user.id,
+      },
+    });
+    if(!job){
+      return res.status(400).json({ message: "Job not created" });
+    }
+    return res.status(200).json({ message: "Job created successfully", job });
+  } catch (error: any) {
+    console.log(error.message);
   }
 };
