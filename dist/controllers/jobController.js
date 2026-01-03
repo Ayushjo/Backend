@@ -37,6 +37,8 @@ export const createJob = async (req, res) => {
                 ? job.input
                 : {}),
             parentJobId: parentJobId,
+            userId: user.id,
+            input: job.input,
         }, {
             priority: job.priority,
             delay: scheduledFor ? new Date(scheduledFor).getTime() - Date.now() : 0,

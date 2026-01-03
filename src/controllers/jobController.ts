@@ -51,6 +51,8 @@ export const createJob = async (req: any, res: Response) => {
           ? job.input
           : {}),
         parentJobId: parentJobId,
+        userId:user.id,
+        input: job.input,
       },
       {
         priority: job.priority,

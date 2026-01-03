@@ -48,7 +48,7 @@ queue.process("*", 5, async (job: any) => {
       message: `Processed ${job.data.jobId}:${job.data.type} ${job.data.input}`,
     };
 
-    await prisma.job.update({
+    const realJob = await prisma.job.update({
       where: {
         id: job.data.jobId,
       },
@@ -59,6 +59,22 @@ queue.process("*", 5, async (job: any) => {
         processingTime: Date.now() - new Date(job.startedAt).getTime(),
       },
     });
+    const webhook = await prisma.webhook.findFirst({
+      where: {
+        userId: job.data.userId,
+      },
+    });
+    if(webhook){
+      await prisma.webhookCall.create({
+        data: {
+          webhookId: webhook.id,
+          jobId: job.data.jobId,
+          event:realJob.status,
+          payload:result
+          
+        },
+      });
+    }
     console.log(`${job.id}:${job} completed`);
     return result;
   } catch (error: any) {
