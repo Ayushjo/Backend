@@ -47,12 +47,13 @@ export const createJob = async (req: any, res: Response) => {
       job.type,
       {
         jobId: job.id,
-        ...(typeof job.input === "object" && job.input !== null
-          ? job.input
-          : {}),
-        parentJobId: parentJobId,
         userId: user.id,
-        input: job.input,
+        input: {
+          subject: (job.input as any).subject,
+          body: (job.input as any).body,
+          recipients: (job.input as any).recipients,
+        },
+        parentJobId,
       },
       {
         priority: job.priority,
@@ -61,6 +62,7 @@ export const createJob = async (req: any, res: Response) => {
         backoff: { type: "exponential", delay: 2000 },
       }
     );
+
     if (queueJob && queueJob.id) {
       await prisma.job.update({
         where: {
@@ -246,7 +248,7 @@ export const createScheduledJobs = async (req: any, res: Response) => {
         userId: user.id,
       },
     });
-    if(!job){
+    if (!job) {
       return res.status(400).json({ message: "Job not created" });
     }
     return res.status(200).json({ message: "Job created successfully", job });

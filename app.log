@@ -292,3 +292,30 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2025-12-31T05:39:01.893Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2025-12-31T05:39:05.643Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2025-12-31T05:39:18.932Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-07T23:48:52.966Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"500\",\"responseTime\":\"5387.887\"}","timestamp":"2026-01-07T23:50:00.884Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T00:21:38.424Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"4465.609\"}","timestamp":"2026-01-08T00:22:02.456Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"1085.953\"}","timestamp":"2026-01-08T00:23:43.815Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:43:37.984Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"5831.840\"}","timestamp":"2026-01-08T07:43:47.233Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"1367.082\"}","timestamp":"2026-01-08T07:45:11.758Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:49:07.271Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:49:16.202Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:49:21.078Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:49:24.813Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T07:49:28.063Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:02:22.734Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:05:02.633Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:05:58.116Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:08:12.621Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:10:54.280Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:10:56.736Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"500\",\"responseTime\":\"222.479\"}","timestamp":"2026-01-08T08:11:04.312Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:11:57.636Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:12:00.057Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"5677.516\"}","timestamp":"2026-01-08T08:12:09.283Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:13:28.173Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on port 4500","timestamp":"2026-01-08T08:17:37.568Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"500\",\"responseTime\":\"5021.027\"}","timestamp":"2026-01-08T08:17:44.493Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v0/job/create-job\",\"status\":\"200\",\"responseTime\":\"6616.281\"}","timestamp":"2026-01-08T08:17:56.615Z"}

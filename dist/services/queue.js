@@ -1,21 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
-import Bull from "bull";
-let queueInstance = null;
-export const getQueue = () => {
-    if (!queueInstance) {
-        queueInstance = new Bull("taskflow-queue", {
-            // ← Same name important
-            redis: {
-                host: process.env.REDIS_HOST,
-                port: process.env.REDIS_PORT,
-            },
-            defaultJobOptions: {
-                removeOnComplete: true,
-                removeOnFail: false,
-            },
-        });
-    }
-    return queueInstance;
-};
-export const queue = getQueue();
+import { Queue } from "bullmq";
+export const queue = new Queue("jobs", {
+    connection: process.env.REDIS_URL,
+    defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: false,
+    },
+});

@@ -33,12 +33,13 @@ export const createJob = async (req, res) => {
         }
         const queueJob = await queue.add(job.type, {
             jobId: job.id,
-            ...(typeof job.input === "object" && job.input !== null
-                ? job.input
-                : {}),
-            parentJobId: parentJobId,
             userId: user.id,
-            input: job.input,
+            input: {
+                subject: job.input.subject,
+                body: job.input.body,
+                recipients: job.input.recipients,
+            },
+            parentJobId,
         }, {
             priority: job.priority,
             delay: scheduledFor ? new Date(scheduledFor).getTime() - Date.now() : 0,
