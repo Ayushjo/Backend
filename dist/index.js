@@ -3,6 +3,7 @@ dotenv.config();
 import morgan from "morgan";
 import express from "express";
 import logger from "./logger.js";
+import cors from "cors";
 const app = express();
 const morganFormat = ":method :url :status :response-time ms";
 app.use(morgan(morganFormat, {
@@ -17,6 +18,10 @@ app.use(morgan(morganFormat, {
             logger.info(JSON.stringify(logObject));
         },
     },
+}));
+app.use(cors({
+    origin: "*",
+    credentials: true
 }));
 app.use(express.json());
 //Pre Req Handler
