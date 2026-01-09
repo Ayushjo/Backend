@@ -3,13 +3,9 @@ dotenv.config();
 import { Queue } from "bullmq";
 export const queue = new Queue("jobs", {
     connection: {
-        host: "hopper.proxy.rlwy.net",
-        port: 59602,
-        username: "default",
+        host: "redis-b_rl.railway.internal",
+        port: 6379,
         password: process.env.REDIS_PASSWORD,
-        tls: {
-            rejectUnauthorized: false,
-        },
         maxRetriesPerRequest: null,
         enableOfflineQueue: false,
     },
